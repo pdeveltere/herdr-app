@@ -13,7 +13,7 @@
 
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
+import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout, props } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -42,6 +42,9 @@ const FALLBACK = 60000;
 
 // What a stored color name looks like on an avatar (the same in every mod
 // that draws space avatars): one strong color per hue, light and dark alike.
+// The context menu to open: a layout can name its own with props { menu }.
+const menuMod = () => props()?.menu ?? "menu";
+
 // The most urgent first, as a space's own status goes.
 const URGENCY = ["blocked", "done", "working", "idle"];
 
@@ -247,7 +250,7 @@ export default class Spaces extends View {
 
   menu(w) {
     // A popup is as tall as its items; height is only the most.
-    openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: w.id } } });
+    openOverlay({ mod: menuMod(), kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: w.id } } });
   }
 
   // Spaces in order, each worktree space moved under its main checkout's.
@@ -379,7 +382,7 @@ export default class Spaces extends View {
         cx.notify();
       })
       .on_click(toggle)
-      .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "folder", target: { name: f.name } } }))
+      .on_mouse_down("right", () => openOverlay({ mod: menuMod(), kind: "popup", width: 200, height: 260, props: { tab: "folder", target: { name: f.name } } }))
       .child(svg(`mods/workspace-chrome/chevron-${f.collapsed ? "right" : "down"}.svg`).size(11).flex_none())
       .when(!collapsed, (el) => el
         .child(div().flex_1().min_w(0).truncate().font_medium().child(f.name))
