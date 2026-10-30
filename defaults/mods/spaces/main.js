@@ -390,7 +390,7 @@ export default class Spaces extends View {
         const inside = list.filter((v) => v.path[depth] === name);
         const members = inside.flatMap((v) => v.rows);
         const status = URGENCY.find((s) => members.some((r) => r.w.status === s)) ?? "idle";
-        out.push(this.folderHead(f, depth, members.length, status, t, collapsed, m));
+        out.push(this.folderHead(f, depth, status, t, collapsed, m));
         if (!f.collapsed) emit(inside, depth + 1);
       }
     };
@@ -398,7 +398,7 @@ export default class Spaces extends View {
     return out;
   }
 
-  folderHead(f, depth, count, status, t, collapsed, m) {
+  folderHead(f, depth, status, t, collapsed, m) {
     const toggle = (_e, cx) => {
       if (this.ghost) return; // the end of a drag, not a click
       const list = folders().map((g) => (g.name === f.name ? { ...g, collapsed: !g.collapsed } : g));
@@ -436,9 +436,8 @@ export default class Spaces extends View {
       .child(svg(`mods/workspace-chrome/chevron-${f.collapsed ? "right" : "down"}.svg`).size(11).flex_none())
       .when(!collapsed, (el) => el
         .child(div().flex_1().min_w(0).truncate().font_medium().child(f.name))
-        // Folded, the header stands for its spaces: their count and most urgent dot.
+        // Folded, the header stands for its spaces: their most urgent dot.
         .when(f.collapsed, (el) => el
-          .child(div().flex_none().text_size(11).text_color(t.dim).child(String(count)))
           .child(div().flex_none().text_color(tone(t, status)).child(glyph(status)))));
   }
 
